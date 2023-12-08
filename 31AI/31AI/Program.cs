@@ -723,14 +723,28 @@ namespace TrettioEtt
             return false;
         }
 
+        private Suit BästaFärgen()
+        {
+            // Kolla igenom, vilken färg har boten mest av
+
+            return Suit.Hjärter;
+        }
+
         public override bool TaUppKort(Card card)
         {
+            // Kolla bästa färgen på handen, hur stor chans att ta upp av samma färg. Hur stor chans att improva gentemot om man tar tillgängligt kort.
+            // Ta listan av kort som inte går att komma åt 
+
+
+
+            BästaFärgen();
+
+            /*
             if (card.Value == 11 || (card.Value == 10 && card.Suit == BestSuit))
             {
                 return true;
-            }
+            }*/
             return false;
-
         }
 
         public override Card KastaKort()
