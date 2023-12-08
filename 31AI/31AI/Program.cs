@@ -8,8 +8,10 @@ using System.Xml;
 using System.Threading;
 using System.Xml.Linq;
 
+#region Predefined Code (Do not modify)
 namespace TrettioEtt
 {
+    
     public enum Suit { Hjärter, Ruter, Spader, Klöver };
 
     class Program
@@ -655,7 +657,7 @@ namespace TrettioEtt
 
     class BasicPlayer : Player
     {
-
+        
         public BasicPlayer()
         {
             Name = "BasicPlayer";
@@ -705,10 +707,14 @@ namespace TrettioEtt
 
         }
     }
+    #endregion
 
+
+    #region FirstAI
     class xx_ProPlayer_xx : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
-
+        List<Card> MidCards = new List<Card>();
+        private enum Cardvalues { Två, Tre, Fyra, Fem, Sex, Sju, Åtta, Nio, Tio, Knekt, DanielDrottson }
         public xx_ProPlayer_xx()
         {
             Name = "xx_YourMom_xx";
@@ -716,11 +722,7 @@ namespace TrettioEtt
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
-            if (Game.Score(this) >= 30)
-            {
-                return true;
-            }
-            return false;
+            
         }
 
         public override bool TaUppKort(Card card)
@@ -770,4 +772,5 @@ namespace TrettioEtt
 
         }
     }
+    #endregion
 }
