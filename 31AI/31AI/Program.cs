@@ -22,7 +22,7 @@ namespace TrettioEtt
 
             List<Player> players = new List<Player>();
             players.Add(new BasicPlayer());
-            players.Add(new MyPlayer());
+            players.Add(new xx_ProPlayer_xx());
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
             {
@@ -706,12 +706,12 @@ namespace TrettioEtt
         }
     }
 
-    class MyPlayer : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
+    class xx_ProPlayer_xx : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
 
-        public MyPlayer()
+        public xx_ProPlayer_xx()
         {
-            Name = "MyPlayer";
+            Name = "xx_YourMom_xx";
         }
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
