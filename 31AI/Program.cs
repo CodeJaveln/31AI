@@ -730,6 +730,9 @@ namespace TrettioEtt
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
+            if (OpponentsLatestCard != null)
+                OpponentsHand.Add(OpponentsLatestCard);
+
             if (Game.Score(this) >= 30)
             {
                 return true;
@@ -791,6 +794,19 @@ namespace TrettioEtt
 
         public override void SpelSlut(bool wonTheGame)
         {
+            PlayerCardDeck = new List<Card>();
+            UnusableCards = new List<Card>();
+            OpponentsHand = new List<Card>();
+
+            int id;
+            int suit;
+            for (int i = 0; i < 52; i++)
+            {
+                id = i % 13 + 1;
+                suit = i % 4;
+                PlayerCardDeck.Add(new Card(id, (Suit)suit));
+            }
+
             if (wonTheGame)
             {
                 Wongames++;
