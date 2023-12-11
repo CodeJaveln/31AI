@@ -708,11 +708,25 @@ namespace TrettioEtt
 
     class xx_ProPlayer_xx : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
+        List<Card> PlayerCardDeck = new List<Card>();
+        List<Card> UnusableCards = new List<Card>();
+        List<Card> OpponentsHand = new List<Card>();
 
         public xx_ProPlayer_xx()
         {
             Name = "xx_YourMom_xx";
+
+            int id;
+            int suit;
+            for (int i = 0; i < 52; i++)
+            {
+                id = i % 13 + 1;
+                suit = i % 4;
+                PlayerCardDeck.Add(new Card(id, (Suit)suit));
+            }
         }
+
+
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
