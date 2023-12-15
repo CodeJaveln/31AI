@@ -22,7 +22,7 @@ namespace TrettioEtt
 
             List<Player> players = new List<Player>();
             players.Add(new BasicPlayer());
-            players.Add(new xx_CoolPlayer_xx());
+            players.Add(new NeoEndSimonConsole());
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
             {
@@ -706,15 +706,16 @@ namespace TrettioEtt
         }
     }
 
-    class xx_CoolPlayer_xx : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
+    class NeoEndSimonConsole : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
         List<Card> PlayerCardDeck = new List<Card>();
+        List<Card> AvailableCards = new List<Card>();
         List<Card> UnusableCards = new List<Card>();
         List<Card> OpponentsHand = new List<Card>();
 
-        public xx_CoolPlayer_xx()
+        public NeoEndSimonConsole()
         {
-            Name = "xx_CoolPlayer_xx";
+            Name = "NESConsole";
 
             int id;
             int suit;
@@ -725,8 +726,6 @@ namespace TrettioEtt
                 PlayerCardDeck.Add(new Card(id, (Suit)suit));
             }
         }
-
-
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
@@ -742,8 +741,6 @@ namespace TrettioEtt
 
         private Suit BästaFärgen()
         {
-            // Kolla igenom, vilken färg har boten mest av
-
             return Suit.Hjärter;
         }
 
@@ -753,8 +750,18 @@ namespace TrettioEtt
             // Ta listan av kort som inte går att komma åt 
 
 
-
-            BästaFärgen();
+            if (card.Value + Hand[0].Value + Hand[1].Value + Hand[2].Value >= 31)
+            {
+                return true;
+            }
+            else if (card.Value >= 9)
+            {
+                return true;
+            }
+            else if (card.Suit == BästaFärgen())
+            {
+                return true;
+            }
 
             /*
             if (card.Value == 11 || (card.Value == 10 && card.Suit == BestSuit))
