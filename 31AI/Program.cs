@@ -788,14 +788,7 @@ namespace TrettioEtt
 
         private int CardValue(Card card)
         {
-            if (card.Suit == Suit.Hjärter)
-            {
-                return card.Value + 100;
-            }
-            else
-            {
-                return card.Value;
-            }
+           return card.Value;
         }
 
 
