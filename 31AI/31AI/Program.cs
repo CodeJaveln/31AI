@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Threading;
 using System.Xml.Linq;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 
 #region Predefined Code (Do not modify)
 namespace TrettioEtt
@@ -713,16 +715,33 @@ namespace TrettioEtt
     #region FirstAI
     class xx_ProPlayer_xx : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
-        List<Card> MidCards = new List<Card>();
-        private enum Cardvalues { Två, Tre, Fyra, Fem, Sex, Sju, Åtta, Nio, Tio, Knekt, DanielDrottson }
+        public CardData Cards;
+        
+        
         public xx_ProPlayer_xx()
         {
-            Name = "xx_YourMom_xx";
+            Cards = new CardData(ref this.Hand);
+            Name = "xx_pro31player_xx";
         }
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
-            
+            Update();
+            if (round == 1) // kan inte knacka på första rundan
+            {
+                return false;
+            }
+            else
+            {
+               
+            }
+        }
+        public void Update() //Körs varje runda
+        {
+            if (OpponentsLatestCard != null)
+            {
+                Cards.DiscardPile[0] = Game.GetTopCard();
+            }
         }
 
         public override bool TaUppKort(Card card)
@@ -756,6 +775,7 @@ namespace TrettioEtt
             {
                 return card.Value + 100;
             }
+            
             else
             {
                 return card.Value;
@@ -770,6 +790,18 @@ namespace TrettioEtt
                 Wongames++;
             }
 
+        }
+    }
+    struct CardData
+    {
+        public List<Card> DiscardPile = new List<Card>();
+        public List<Card> Hand = new List<Card>();
+        public Card?[] EnemyHand = new Card?[3] {null, null, null }; // null står för "Vet inte"
+        public int DeckAmount;
+        public CardData(ref List<Card> hand) 
+        {
+            Hand = hand;
+            DeckAmount = 46 - DiscardPile.Count;
         }
     }
     #endregion
