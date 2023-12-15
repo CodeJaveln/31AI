@@ -792,6 +792,11 @@ namespace TrettioEtt
             // Kolla bästa färgen på handen, hur stor chans att ta upp av samma färg. Hur stor chans att improva gentemot om man tar tillgängligt kort.
             // Ta listan av kort som inte går att komma åt 
 
+            if (card == KastaKort())
+            {
+                return false;
+            }
+
             for (int i = 0; i < Hand.Count; i++)
             {
                 if (card.Suit == Hand[i].Suit)
@@ -800,11 +805,7 @@ namespace TrettioEtt
                 }
             }
 
-            if (card.Suit == BästaFärgen() && card != KastaKort())
-            {
-                return true;
-            }
-            else if (card.Value + Hand[0].Value + Hand[1].Value + Hand[2].Value >= 31)
+            if (card.Suit == BästaFärgen())
             {
                 return true;
             }
@@ -821,12 +822,36 @@ namespace TrettioEtt
         {
             int worstValue = 1000;
             Card worstCard = null;
+            bool wrongAttack = false;
             for (int i = 0; i < Hand.Count; i++)
             {
-                if (CardValue(Hand[i]) < worstValue)
+                if (Hand[i].Value < worstValue)
                 {
-                    worstValue = CardValue(Hand[i]);
-                    worstCard = Hand[i];
+                    for (int j = 0; j < Hand.Count; j++)
+                    {
+                        if (j != i && Hand[j].Suit == Hand[i].Suit)
+                        {
+                            wrongAttack = true;
+                            break;
+                        }
+                    }
+                    if (wrongAttack == false)
+                    {
+                        worstValue = CardValue(Hand[i]);
+                        worstCard = Hand[i];
+                    }
+                    wrongAttack = false;
+                }
+            }
+            if (worstCard == null)
+            {
+                for (int i = 0; i < Hand.Count; i++)
+                {
+                    if (Hand[i].Value < worstValue)
+                    {
+                        worstValue = CardValue(Hand[i]);
+                        worstCard = Hand[i];
+                    }
                 }
             }
             return worstCard;
