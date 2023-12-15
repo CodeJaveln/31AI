@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Threading;
 using System.Xml.Linq;
+using System.Security.Cryptography;
 
 namespace TrettioEtt
 {
@@ -712,7 +713,6 @@ namespace TrettioEtt
         List<Card> AvailableCards = new List<Card>();
         List<Card> UnusableCards = new List<Card>();
         List<Card> OpponentsHand = new List<Card>();
-
         public NeoAndSimonConsole()
         {
             Name = "NASConsole";
@@ -727,11 +727,13 @@ namespace TrettioEtt
             }
         }
 
-        public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
+        private void AddCardToList()
         {
             if (OpponentsLatestCard != null)
                 OpponentsHand.Add(OpponentsLatestCard);
-
+        }
+        public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
+        {
             if (Game.Score(this) >= 30)
             {
                 return true;
@@ -741,48 +743,21 @@ namespace TrettioEtt
 
         private Suit BästaFärgen()
         {
-            int[] flestAvFärg = new int[4];
-            int hjärter = 0;
-            int spader = 0;
-            int ruter = 0;
-            int klöver = 0;
-            for (int i = 0; i < Hand.Count; i++)
+            int[] färger = new int[4];
+
+            foreach (Card card in Hand)
             {
-                switch (Hand[i].Suit)
+                färger[(int)card.Suit]++;
+            }
+
+            int maxKort = färger.Max();
+
+            for (int i = 0; i < färger.Length; i++)
+            {
+                if (färger[i] == maxKort)
                 {
-                    case Suit.Hjärter:
-                        flestAvFärg[0]++;
-                        hjärter++;
-                        break;
-                    case Suit.Spader:
-                        flestAvFärg[1]++;
-                        spader++;
-                        break;
-                    case Suit.Ruter:
-                        flestAvFärg[2]++;
-                        ruter++;
-                        break;
-                    case Suit.Klöver:
-                        flestAvFärg[3]++;
-                        klöver++;
-                        break;
+                    return (Suit)färger[i];
                 }
-            }
-            if (flestAvFärg.Max() == flestAvFärg[0])
-            {
-                return Suit.Hjärter;
-            }
-            else if (flestAvFärg.Max() == flestAvFärg[1])
-            {
-                return Suit.Spader;
-            }
-            else if (flestAvFärg.Max() == flestAvFärg[2])
-            {
-                return Suit.Ruter;
-            }
-            else if (flestAvFärg.Max() == flestAvFärg[3])
-            {
-                return Suit.Klöver;
             }
             return Suit.Hjärter;
         }
@@ -790,13 +765,21 @@ namespace TrettioEtt
         public override bool TaUppKort(Card card)
         {
             // Kolla bästa färgen på handen, hur stor chans att ta upp av samma färg. Hur stor chans att improva gentemot om man tar tillgängligt kort.
-            // Ta listan av kort som inte går att komma åt 
+            // Ta listan av kort som inte går att komma åt
+            AddCardToList();
+            for (int i = 0; i < Hand.Count; i++)
+            {
+                AvailableCards.Remove(Hand[i]);
+            }
 
-            if (card == KastaKort())
+            if (card == SämstaKortet(card, Hand[0], Hand[1], Hand[2]))
             {
                 return false;
             }
-
+            if (card.Suit == BästaFärgen())
+            {
+                return true;
+            }
             for (int i = 0; i < Hand.Count; i++)
             {
                 if (card.Suit == Hand[i].Suit)
@@ -804,32 +787,22 @@ namespace TrettioEtt
                     return true;
                 }
             }
-
-            if (card.Suit == BästaFärgen())
-            {
-                return true;
-            }
-
-            /*
-            if (card.Value == 11 || (card.Value == 10 && card.Suit == BestSuit))
-            {
-                return true;
-            }*/
             return false;
         }
 
-        public override Card KastaKort()
+        private Card SämstaKortet(params Card[] hand)
         {
             int worstValue = 1000;
             Card worstCard = null;
             bool wrongAttack = false;
-            for (int i = 0; i < Hand.Count; i++)
+            
+            for (int i = 0; i < hand.Length; i++)
             {
-                if (Hand[i].Value < worstValue)
+                if (hand[i].Value < worstValue)
                 {
-                    for (int j = 0; j < Hand.Count; j++)
+                    for (int j = 0; j < hand.Length; j++)
                     {
-                        if (j != i && Hand[j].Suit == Hand[i].Suit)
+                        if (j != i && hand[j].Suit == hand[i].Suit)
                         {
                             wrongAttack = true;
                             break;
@@ -837,24 +810,29 @@ namespace TrettioEtt
                     }
                     if (wrongAttack == false)
                     {
-                        worstValue = CardValue(Hand[i]);
-                        worstCard = Hand[i];
+                        worstValue = CardValue(hand[i]);
+                        worstCard = hand[i];
                     }
                     wrongAttack = false;
                 }
             }
             if (worstCard == null)
             {
-                for (int i = 0; i < Hand.Count; i++)
+                for (int i = 0; i < hand.Length; i++)
                 {
-                    if (Hand[i].Value < worstValue)
+                    if (hand[i].Value < worstValue)
                     {
-                        worstValue = CardValue(Hand[i]);
-                        worstCard = Hand[i];
+                        worstValue = CardValue(hand[i]);
+                        worstCard = hand[i];
                     }
                 }
             }
             return worstCard;
+        }
+
+        public override Card KastaKort()
+        {
+            return SämstaKortet(Hand[0], Hand[1], Hand[2], Hand[3]);
         }
 
         private int CardValue(Card card)
@@ -866,6 +844,7 @@ namespace TrettioEtt
         public override void SpelSlut(bool wonTheGame)
         {
             PlayerCardDeck = new List<Card>();
+            AvailableCards = new List<Card>();
             UnusableCards = new List<Card>();
             OpponentsHand = new List<Card>();
 
@@ -882,7 +861,6 @@ namespace TrettioEtt
             {
                 Wongames++;
             }
-
         }
     }
 }
