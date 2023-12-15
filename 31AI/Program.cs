@@ -10,6 +10,7 @@ using System.Xml.Linq;
 
 namespace TrettioEtt
 {
+    #region ImportantCode
     public enum Suit { Hjärter, Ruter, Spader, Klöver };
 
     class Program
@@ -22,7 +23,7 @@ namespace TrettioEtt
 
             List<Player> players = new List<Player>();
             players.Add(new BasicPlayer());
-            players.Add(new NeoEndSimonConsole());
+            players.Add(new NeoAndSimonConsole());
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
             {
@@ -625,8 +626,7 @@ namespace TrettioEtt
         }
     }
 
-
-
+    #endregion
 
     abstract class Player
     {
@@ -706,16 +706,16 @@ namespace TrettioEtt
         }
     }
 
-    class NeoEndSimonConsole : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
+    class NeoAndSimonConsole : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
         List<Card> PlayerCardDeck = new List<Card>();
         List<Card> AvailableCards = new List<Card>();
         List<Card> UnusableCards = new List<Card>();
         List<Card> OpponentsHand = new List<Card>();
 
-        public NeoEndSimonConsole()
+        public NeoAndSimonConsole()
         {
-            Name = "NESConsole";
+            Name = "NASConsole";
 
             int id;
             int suit;
@@ -741,6 +741,49 @@ namespace TrettioEtt
 
         private Suit BästaFärgen()
         {
+            int[] flestAvFärg = new int[4];
+            int hjärter = 0;
+            int spader = 0;
+            int ruter = 0;
+            int klöver = 0;
+            for (int i = 0; i < Hand.Count; i++)
+            {
+                switch (Hand[i].Suit)
+                {
+                    case Suit.Hjärter:
+                        flestAvFärg[0]++;
+                        hjärter++;
+                        break;
+                    case Suit.Spader:
+                        flestAvFärg[1]++;
+                        spader++;
+                        break;
+                    case Suit.Ruter:
+                        flestAvFärg[2]++;
+                        ruter++;
+                        break;
+                    case Suit.Klöver:
+                        flestAvFärg[3]++;
+                        klöver++;
+                        break;
+                }
+            }
+            if (flestAvFärg.Max() == flestAvFärg[0])
+            {
+                return Suit.Hjärter;
+            }
+            else if (flestAvFärg.Max() == flestAvFärg[1])
+            {
+                return Suit.Spader;
+            }
+            else if (flestAvFärg.Max() == flestAvFärg[2])
+            {
+                return Suit.Ruter;
+            }
+            else if (flestAvFärg.Max() == flestAvFärg[3])
+            {
+                return Suit.Klöver;
+            }
             return Suit.Hjärter;
         }
 
@@ -749,16 +792,19 @@ namespace TrettioEtt
             // Kolla bästa färgen på handen, hur stor chans att ta upp av samma färg. Hur stor chans att improva gentemot om man tar tillgängligt kort.
             // Ta listan av kort som inte går att komma åt 
 
+            for (int i = 0; i < Hand.Count; i++)
+            {
+                if (card.Suit == Hand[i].Suit)
+                {
+                    return true;
+                }
+            }
 
-            if (card.Value + Hand[0].Value + Hand[1].Value + Hand[2].Value >= 31)
+            if (card.Suit == BästaFärgen() && card != KastaKort())
             {
                 return true;
             }
-            else if (card.Value >= 9)
-            {
-                return true;
-            }
-            else if (card.Suit == BästaFärgen())
+            else if (card.Value + Hand[0].Value + Hand[1].Value + Hand[2].Value >= 31)
             {
                 return true;
             }
