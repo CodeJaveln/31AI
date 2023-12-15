@@ -22,7 +22,7 @@ namespace TrettioEtt
 
             List<Player> players = new List<Player>();
             players.Add(new BasicPlayer());
-            players.Add(new xx_ProPlayer_xx());
+            players.Add(new xx_CoolPlayer_xx());
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
             {
@@ -706,15 +706,15 @@ namespace TrettioEtt
         }
     }
 
-    class xx_ProPlayer_xx : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
+    class xx_CoolPlayer_xx : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
         List<Card> PlayerCardDeck = new List<Card>();
         List<Card> UnusableCards = new List<Card>();
         List<Card> OpponentsHand = new List<Card>();
 
-        public xx_ProPlayer_xx()
+        public xx_CoolPlayer_xx()
         {
-            Name = "xx_YourMom_xx";
+            Name = "xx_CoolPlayer_xx";
 
             int id;
             int suit;
