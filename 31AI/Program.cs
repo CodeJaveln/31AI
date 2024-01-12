@@ -25,9 +25,8 @@ namespace TrettioEtt
 
             List<Player> players = new List<Player>();
             players.Add(new BasicPlayer());
-            players.Add(new DysfunctionalMotor());
-            players.Add(new NeoAndSimonConsole2());
             players.Add(new xx_ProPlayer_xx());
+            players.Add(new NeoAndSimonConsole2());
 
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
@@ -767,7 +766,7 @@ namespace TrettioEtt
         public CardData Cards;
 
 
-        public DysfunctionalMotor()
+        public xx_ProPlayer_xx()
         {
             Cards = new CardData(ref this.Hand);
             Name = "xx_pro31player_xx";
@@ -787,7 +786,7 @@ namespace TrettioEtt
                 return false;
             }
         }
-        public double GenerateWinProbability() // Returns the percentage chance of the AI having a winning hand
+        double GenerateWinProbability() // Returns the percentage chance of the AI having a winning hand
         {
             int?[] IDs = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
 
@@ -899,8 +898,6 @@ namespace TrettioEtt
                 {
                     Cards.DiscardPile.Add(Game.GetTopCard());
                 }
-                
-
             }
         }
         public override bool TaUppKort(Card card)
@@ -921,6 +918,27 @@ namespace TrettioEtt
                 }
             }
             return false;
+        }
+
+        private Suit BästaFärgen()
+        {
+            int[] färger = new int[4];
+
+            foreach (Card card in Hand)
+            {
+                färger[(int)card.Suit]++;
+            }
+
+            int maxKort = färger.Max();
+
+            for (int i = 0; i < färger.Length; i++)
+            {
+                if (färger[i] == maxKort)
+                {
+                    return (Suit)färger[i];
+                }
+            }
+            return Suit.Hjärter;
         }
 
         private Card SämstaKortet(params Card[] hand)
@@ -981,7 +999,7 @@ namespace TrettioEtt
             }
         }
 
-        struct CardData
+        public struct CardData
         {
             public List<Card> DiscardPile = new List<Card>();
             public List<Card> Hand = new List<Card>();
@@ -993,100 +1011,9 @@ namespace TrettioEtt
                 DeckAmount = 46 - DiscardPile.Count;
             }
         }
-
-        public double GenerateWinProbability() // Returns the percentage chance of the AI having a winning hand
-        {
-            int?[] IDs = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
-
-            Dictionary<Suit, int?[]> possibleCards = new Dictionary<Suit, int?[]>() { { Suit.Hjärter, IDs }, { Suit.Spader, IDs }, { Suit.Ruter, IDs }, { Suit.Klöver, IDs } };
-
-
-            foreach (Card card in Cards.DiscardPile)
-            {
-                possibleCards[card.Suit][card.Id - 1] = null; // means it is not possible
-            }
-            foreach (Card card in Hand)
-            {
-                possibleCards[card.Suit][card.Id - 1] = null;
-            }
-            foreach (Card? card in Cards.EnemyHand)
-            {
-                if (card != null)
-                {
-                    possibleCards[card.Suit][card.Id - 1] = null;
-                }
-            }
-
-
-
-            List<Card?> possibleEnemyHand = Cards.EnemyHand;
-            List<int> pointerList = new List<int>();
-
-            for (int a = 0; a < possibleEnemyHand.Count; a++)
-            {
-                if (possibleEnemyHand[a] != null)
-                {
-                    pointerList.Add(a);
-                }
-            }
-            List<Card> possibleCardList = new List<Card>();
-
-            foreach (Suit suit in possibleCards.Keys)
-            {
-
-                foreach (int? id in possibleCards[suit])
-                {
-                    if (id != null)
-                    {
-                        possibleCardList.Add(new Card(id ?? 0, suit));
-                    }
-
-                }
-
-            }
-
-            int i = 0;
-            bool isRunning = true;
-            int totalHands = 0;
-            int winningHands = 0;
-
-            while (isRunning)
-            {
-                for (int u = 0; u < pointerList.Count; u++)
-                {
-                    try
-                    {
-                        int index = i % possibleCardList.Count;
-                        int o = u;
-                        for (int x2 = 0; x2 < 100; x2++)
-                        {
-                            index = index % possibleCardList.Count;
-                            o -= 1;
-                        }
-                        possibleEnemyHand[pointerList[u]] = possibleCardList[index];
-                    }
-                    catch
-                    {
-                        isRunning = false; break;
-                    }
-
-
-                }
-                if (isRunning)
-                {
-                    int score = Game.HandScore(possibleEnemyHand, null);
-                    totalHands++;
-                    if (score > Game.HandScore(this.Hand, null))
-                    {
-                        winningHands++;
-                    }
-                }
-
-            }
-
-            return (1 - (Convert.ToDouble(winningHands) / Convert.ToDouble(totalHands))) * 100;
-        }
     }
+
+    #endregion
 
     class NeoAndSimonConsole2 : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
@@ -1203,17 +1130,4 @@ namespace TrettioEtt
             }
         }
     }
-    struct CardData
-    {
-        public List<Card> DiscardPile = new List<Card>();
-        public List<Card> Hand = new List<Card>();
-        public List<Card> EnemyHand = new List<Card>() { null, null, null }; // null står för "Vet inte"
-        public int DeckAmount;
-        public CardData(ref List<Card> hand)
-        {
-            Hand = hand;
-            DeckAmount = 46 - DiscardPile.Count;
-        }
-    }
-    #endregion
 }
