@@ -1149,16 +1149,13 @@ namespace TrettioEtt
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
 
-            double percentageBarrier = 60; //At what percentage chance of winning we should knock
+            double percentageBarrier = 30; //At what percentage chance of winning we should knock
             Updatera();
-            if (GenerateWinProbability() < percentageBarrier) // kan inte knacka på första rundan
+            if (GenerateWinProbability() * Math.Sqrt(round) > percentageBarrier) // kan inte knacka på första rundan
             {
-                return false;
+                return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
         double GenerateWinProbability() // Returns the percentage chance of the AI having a winning hand
         {
@@ -1208,7 +1205,6 @@ namespace TrettioEtt
                     }
 
                 }
-
             }
 
             int i = 0;
@@ -1236,8 +1232,6 @@ namespace TrettioEtt
                     {
                         isRunning = false; break;
                     }
-
-
                 }
                 if (isRunning)
                 {
@@ -1249,7 +1243,6 @@ namespace TrettioEtt
                         winningHands++;
                     }
                 }
-
             }
 
 
