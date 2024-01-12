@@ -8,42 +8,46 @@ namespace TrettioEtt
 {
     internal class RandomAI : Player
     {
+        Random rng = new Random();
         public RandomAI()
         {
             Name = "RandomAI";
         }
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
-            if (Game.Score(this) >= 30)
+            if (!(round == 1))
             {
-                return true;
+                if (rng.Next(0, 2) == 1)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            return false;
+            else
+            {
+                return false;
+            }
         }
 
         public override bool TaUppKort(Card card)
         {
-            if (card.Value == 11 || (card.Value == 10 && card.Suit == BestSuit))
+            if (rng.Next(0, 2) == 1)
             {
                 return true;
             }
-            return false;
+            else
+            {
+                return false;
+            }
 
         }
 
         public override Card KastaKort()
         {
-            int worstValue = 12;
-            Card worstCard = null;
-            for (int i = 0; i < Hand.Count; i++)
-            {
-                if (Hand[i].Value < worstValue)
-                {
-                    worstValue = Hand[i].Value;
-                    worstCard = Hand[i];
-                }
-            }
-            return worstCard;
+            return Hand[rng.Next(0, Hand.Count)];
 
         }
 

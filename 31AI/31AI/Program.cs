@@ -7,13 +7,10 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Threading;
 using System.Xml.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
 
-#region Predefined Code (Do not modify)
 namespace TrettioEtt
 {
-    
     public enum Suit { Hjärter, Ruter, Spader, Klöver };
 
     class Program
@@ -27,6 +24,7 @@ namespace TrettioEtt
             List<Player> players = new List<Player>();
             players.Add(new BasicPlayer());
             players.Add(new xx_ProPlayer_xx());
+
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
             {
@@ -51,7 +49,7 @@ namespace TrettioEtt
                 game.Printlevel = 2;
             else
                 game.Printlevel = 0;
-            game.initialize(true);
+            game.Initialize(true);
             game.PlayAGame(true);
             Console.Clear();
             bool player1starts = true;
@@ -60,7 +58,7 @@ namespace TrettioEtt
             {
                 game.Printlevel = 0;
                 player1starts = !player1starts;
-                game.initialize(false);
+                game.Initialize(false);
                 game.PlayAGame(player1starts);
 
                 Console.ForegroundColor = ConsoleColor.White;
@@ -147,7 +145,8 @@ namespace TrettioEtt
     {
         public int Value { get; private set; } //Kortets värde enligt reglerna i Trettioett, t.ex. dam = 10
         public Suit Suit { get; private set; }
-        private int Id; //Typ av kort, t.ex dam = 12
+        public int Id { get; private set; }  //Typ av kort, t.ex dam = 12
+
 
         public Card(int id, Suit suit)
         {
@@ -218,7 +217,7 @@ namespace TrettioEtt
                 return false;
             }
             Card card = (Card)obj;
-            if (card.Value == Value && card.Suit == Suit)
+            if (card.Id == Id && card.Suit == Suit)
             {
                 return true;
             }
@@ -226,9 +225,7 @@ namespace TrettioEtt
             {
                 return false;
             }
-
         }
-
     }
 
 
@@ -250,7 +247,7 @@ namespace TrettioEtt
 
         }
 
-        public void initialize(bool firstGame)
+        public void Initialize(bool firstGame)
         {
             Lastround = false;
             Player1.lastTurn = false;
@@ -282,14 +279,13 @@ namespace TrettioEtt
                 {
                     //Console.WriteLine("Omgiv. Scores: " + Score(Player1) + " , " + Score(Player2));
                     //Console.ReadKey();
-                    initialize(true);
-
+                    Initialize(true);
                 }
             }
             Discard(DrawCard());
         }
 
-        public void printHand(Player player)
+        public void PrintHand(Player player)
         {
             Console.SetCursorPosition(0, player.PrintPosition);
             Console.WriteLine(player.Name + " har ");
@@ -300,29 +296,80 @@ namespace TrettioEtt
             }
         }
 
-        private int playARound(Player player, Player otherPlayer)
+        private bool CheckDeck()
+        {
+            List<Card> mockDeck = new List<Card>();
+            int id;
+            int suit;
+            for (int i = 0; i < 52; i++)
+            {
+                id = i % 13 + 1;
+                suit = i % 4;
+                mockDeck.Add(new Card(id, (Suit)suit));
+            }
+            foreach (var card in CardDeck)
+            {
+                if (!mockDeck.Remove(card))
+                    return false;
+            }
+            foreach (var card in DiscardPile)
+            {
+                if (!mockDeck.Remove(card))
+                    return false;
+            }
+            foreach (var card in Player1.Hand)
+            {
+                if (!mockDeck.Remove(card))
+                    return false;
+            }
+            foreach (var card in Player2.Hand)
+            {
+                if (!mockDeck.Remove(card))
+                    return false;
+            }
+            if (mockDeck.Count != 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private bool IsHandOK(List<Card> hand)
+        {
+            if (hand[0].Equals(hand[1]) || hand[1].Equals(hand[2]) || hand[0].Equals(hand[2]))
+                return false;
+            else
+                return true;
+        }
+
+
+        private int PlayARound(Player player, Player otherPlayer)
         {
             if (Printlevel > 1)
             {
-                printHand(player);
+                PrintHand(player);
                 Console.SetCursorPosition(4, 6);
                 Console.Write("På skräphögen ligger ");
                 DiscardPile.Last().PrintCard();
-
             }
             otherPlayer.OpponentsLatestCard = null;
+            if (NbrOfRounds <= 1)
+                player.Knacka(NbrOfRounds);
             if (NbrOfRounds > 1 && !Lastround && player.Knacka(NbrOfRounds))
             {
                 if (Printlevel > 1)
                 {
                     Console.SetCursorPosition(20, player.PrintPosition + 2);
                     Console.Write(player.Name + " knackar!");
+                    Console.ReadKey();
                 }
                 return Score(player);
             }
             else if (player.TaUppKort(DiscardPile.Last()))
             {
-
                 player.Hand.Add(PickDiscarded());
                 otherPlayer.OpponentsLatestCard = player.Hand.Last();
                 if (Printlevel > 1)
@@ -354,7 +401,7 @@ namespace TrettioEtt
                 Console.Write("       Tryck ENTER");
                 Console.ReadLine();
                 Console.Clear();
-                printHand(player);
+                PrintHand(player);
             }
             Discard(discardcard);
             if (Score(player) == 31)
@@ -370,7 +417,6 @@ namespace TrettioEtt
         private void UpdateHand(Player player, Card discardcard)
         {
             player.Hand.Remove(discardcard);
-
         }
 
         public Card GetTopCard()
@@ -420,7 +466,7 @@ namespace TrettioEtt
 
         }
 
-        public int HandScore(List<Card> hand, Card excluded) //Reurnerar handens poäng av bästa färg. Undantar ett kort från beräkningen (null för att ta med alla kort)
+        public int HandScore(List<Card> hand, Card excluded) //Returnerar handens poäng av bästa färg. Undantar ett kort från beräkningen (null för att ta med alla kort)
         {
             int[] suitScore = new int[4];
             int aces = 0;
@@ -465,12 +511,17 @@ namespace TrettioEtt
             }
             while (Cardnumber < 51 && NbrOfRounds < 100)
             {
+                if (DiscardPile.Count + CardDeck.Count != 46)
+                {
+                    Console.WriteLine("FEL, kortantal inte 52 ");
+                    Console.ReadLine();
+                }
                 NbrOfRounds++;
-                int result = playARound(playerInTurn, playerNotInTurn);
+                int result = PlayARound(playerInTurn, playerNotInTurn);
                 if (result == 31)
                 {
                     if (Printlevel > 1)
-                        printHand(playerNotInTurn);
+                        PrintHand(playerNotInTurn);
                     playerInTurn.SpelSlut(true);
                     playerInTurn.TrettiettWins++;
                     playerInTurn.StoppedGames++;
@@ -489,11 +540,11 @@ namespace TrettioEtt
                     playerInTurn.KnackTotal += result;
                     Lastround = true;
                     playerNotInTurn.lastTurn = true;
-                    playARound(playerNotInTurn, playerInTurn);
+                    PlayARound(playerNotInTurn, playerInTurn);
                     if (Printlevel > 1)
                     {
-                        printHand(playerInTurn);
-                        printHand(playerNotInTurn);
+                        PrintHand(playerInTurn);
+                        PrintHand(playerNotInTurn);
                     }
                     if (Printlevel > 0)
                     {
@@ -527,17 +578,11 @@ namespace TrettioEtt
                         playerInTurn.StoppedRounds += NbrOfRounds;
                         //playerNotInTurn.WinRounds += NbrOfRounds;
                         if (Printlevel > 0)
-
                         {
-
                             Console.SetCursorPosition(15, playerNotInTurn.PrintPosition + 6);
-
                             Console.WriteLine(playerNotInTurn.Name + " vann!");
-
                             Console.ReadLine();
-
                         }
-
                         break;
 
                     }
@@ -605,6 +650,7 @@ namespace TrettioEtt
         private Card PickDiscarded()
         {
             Card card = DiscardPile.Last();
+            DiscardPile.RemoveAt(DiscardPile.Count - 1);
             Discardnumber++;
             return card;
         }
@@ -615,11 +661,11 @@ namespace TrettioEtt
         {
             for (int i = 0; i < 200; i++)
             {
-                switchCards();
+                SwitchCards();
             }
         }
 
-        private void switchCards()
+        private void SwitchCards()
         {
             int card1 = RNG.Next(CardDeck.Count);
             int card2 = RNG.Next(CardDeck.Count);
@@ -659,7 +705,7 @@ namespace TrettioEtt
 
     class BasicPlayer : Player
     {
-        
+
         public BasicPlayer()
         {
             Name = "BasicPlayer";
@@ -709,15 +755,15 @@ namespace TrettioEtt
 
         }
     }
-    #endregion
+
 
 
     #region FirstAI
     class xx_ProPlayer_xx : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
         public CardData Cards;
-        
-        
+
+
         public xx_ProPlayer_xx()
         {
             Cards = new CardData(ref this.Hand);
@@ -726,24 +772,124 @@ namespace TrettioEtt
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
-            Update();
-            if (round == 1) // kan inte knacka på första rundan
+
+            float percentageBarrier = 50; //At what percentage chance of winning we should knock
+            Updatera();
+            if (round == 1 || GenerateWinProbability() < percentageBarrier) // kan inte knacka på första rundan
             {
                 return false;
             }
-            else
+            else if ()
             {
-               
+
             }
         }
-        public void Update() //Körs varje runda
+        public float GenerateWinProbability() // Returns the percentage chance of the AI having a winning hand
+        {
+            int?[] IDs = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
+
+            Dictionary<Suit, int?[]> possibleCards = new Dictionary<Suit, int?[]>() { { Suit.Hjärter, IDs }, { Suit.Spader, IDs }, { Suit.Ruter, IDs }, { Suit.Klöver, IDs } };
+
+
+            foreach (Card card in Cards.DiscardPile)
+            {
+                possibleCards[card.Suit][card.Id - 1] = null; // means it is not possible
+            }
+            foreach (Card card in Hand)
+            {
+                possibleCards[card.Suit][card.Id - 1] = null;
+            }
+            foreach (Card? card in Cards.EnemyHand)
+            {
+                if (card != null)
+                {
+                    possibleCards[card.Suit][card.Id - 1] = null;
+                }
+            }
+
+
+
+            List<Card?> possibleEnemyHand = Cards.EnemyHand;
+            List<int> pointerList = new List<int>();
+
+            for (int a = 0; a < possibleEnemyHand.Count; a++)
+            {
+                if (possibleEnemyHand[a] != null)
+                {
+                    pointerList.Add(a);
+                }
+            }
+            List<Card> possibleCardList = new List<Card>();
+
+            foreach (Suit suit in possibleCards.Keys)
+            {
+
+                foreach (int id in possibleCards[suit])
+                {
+                    if (id != null)
+                    {
+                        possibleCardList.Add(new Card(id, suit));
+                    }
+
+                }
+
+            }
+
+            int i = 0;
+            bool isRunning = true;
+            int totalHands = 0;
+            int winningHands = 0;
+
+            while (isRunning)
+            {
+                for (int u = 0; u < pointerList.Count; u++)
+                {
+                    try
+                    {
+                        int index = i % possibleCardList.Count;
+                        int o = u;
+                        while (o > 0)
+                        {
+                            index = index % possibleCardList.Count;
+                            o -= 1;
+                        }
+                        possibleEnemyHand[pointerList[u]] = possibleCardList[index];
+                    }
+                    catch
+                    {
+                        isRunning = false; break;
+                    }
+
+
+                }
+                if (isRunning)
+                {
+                    int score = Game.HandScore(possibleEnemyHand, null);
+                    totalHands++;
+                    if (score > Game.HandScore(this.Hand, null))
+                    {
+                        winningHands++;
+                    }
+                }
+
+            }
+
+
+
+
+
+            return 1 - (winningHands / totalHands);
+
+
+        }
+        public void Updatera() //Körs varje runda
         {
             if (OpponentsLatestCard != null)
             {
                 Cards.DiscardPile[0] = Game.GetTopCard();
+
             }
         }
-
         public override bool TaUppKort(Card card)
         {
             if (card.Value == 11 || (card.Value == 10 && card.Suit == BestSuit))
@@ -775,7 +921,7 @@ namespace TrettioEtt
             {
                 return card.Value + 100;
             }
-            
+
             else
             {
                 return card.Value;
@@ -796,9 +942,9 @@ namespace TrettioEtt
     {
         public List<Card> DiscardPile = new List<Card>();
         public List<Card> Hand = new List<Card>();
-        public Card?[] EnemyHand = new Card?[3] {null, null, null }; // null står för "Vet inte"
+        public List<Card> EnemyHand = new List<Card>() { null, null, null }; // null står för "Vet inte"
         public int DeckAmount;
-        public CardData(ref List<Card> hand) 
+        public CardData(ref List<Card> hand)
         {
             Hand = hand;
             DeckAmount = 46 - DiscardPile.Count;
