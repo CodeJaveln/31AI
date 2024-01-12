@@ -1020,6 +1020,7 @@ namespace TrettioEtt
 
     class NeoAndSimonConsole2 : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
     {
+        List<Card> UnavailableCards = new List<Card>();
         public NeoAndSimonConsole2()
         {
             Name = "NASConsole2";
@@ -1027,6 +1028,13 @@ namespace TrettioEtt
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
+            //for (int i = 0; i < Hand.Count; i++)
+            //{
+            //    if (!UnavailableCards.Find(Hand[i]))
+            //    {
+
+            //    }
+            //}
             if (Game.Score(this) >= 21)
             {
                 return true;
@@ -1057,20 +1065,23 @@ namespace TrettioEtt
 
         public override bool TaUppKort(Card card)
         {
+            // Om tänker ta upp kort, kolla om det är större chans att dra ett kort istället
+
             if (card == SämstaKortet(card, Hand[0], Hand[1], Hand[2]))
             {
                 return false;
             }
-            if (card.Suit == BästaFärgen())
+            if (card != SämstaKortet(card, Hand[0], Hand[1], Hand[2]) && card.Suit == BästaFärgen())
             {
                 return true;
             }
-            for (int i = 0; i < Hand.Count; i++)
+            if (card.Id > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Id && 4 * card.Id >= 46)
             {
-                if (card.Suit == Hand[i].Suit)
-                {
-                    return true;
-                }
+                return true;
+            }
+            if (card.Suit == Hand[0].Suit)
+            {
+                return true;
             }
             return false;
         }
@@ -1127,6 +1138,7 @@ namespace TrettioEtt
 
         public override void SpelSlut(bool wonTheGame)
         {
+            UnavailableCards = new List<Card>();
             if (wonTheGame)
             {
                 Wongames++;
@@ -1149,7 +1161,7 @@ namespace TrettioEtt
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
 
-            double percentageBarrier = 60; //At what percentage chance of winning we should knock
+            double percentageBarrier = 20; //At what percentage chance of winning we should knock
             Updatera();
             if (GenerateWinProbability() < percentageBarrier * Math.Sqrt(round))
             {
