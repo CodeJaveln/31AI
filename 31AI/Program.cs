@@ -1035,6 +1035,10 @@ namespace TrettioEtt
 
             //    }
             //}
+            if (TaUppKort(Game.GetTopCard()) && Game.GetTopCard().Suit == BästaFärgen())
+            {
+                return false;
+            }
             if (Game.Score(this) >= 21)
             {
                 return true;
@@ -1042,50 +1046,25 @@ namespace TrettioEtt
             return false;
         }
 
-        private Suit BästaFärgen()
-        {
-            int[] färger = new int[4];
-
-            foreach (Card card in Hand)
-            {
-                färger[(int)card.Suit]++;
-            }
-
-            int maxKort = färger.Max();
-
-            for (int i = 0; i < färger.Length; i++)
-            {
-                if (färger[i] == maxKort)
-                {
-                    return (Suit)färger[i];
-                }
-            }
-            return Suit.Hjärter;
-        }
-
         public override bool TaUppKort(Card card)
         {
             // Om tänker ta upp kort, kolla om det är större chans att dra ett kort istället
 
-            if (card == SämstaKortet(card, Hand[0], Hand[1], Hand[2]))
+
+            if (card == SämstaKortet(card, Hand[0], Hand[1], Hand[2])) // VIKTIGT ändra inte om du vet vad du gör
             {
                 return false;
             }
-            if (card != SämstaKortet(card, Hand[0], Hand[1], Hand[2]) && card.Suit == BästaFärgen())
+            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Id && card.Value > 5)
             {
                 return true;
             }
-            if (card.Id > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Id && 4 * card.Id >= 46)
-            {
-                return true;
-            }
-            if (card.Suit == Hand[0].Suit)
+            if (card.Suit == BästaFärgen())
             {
                 return true;
             }
             return false;
         }
-
         private Card SämstaKortet(params Card[] hand)
         {
             int worstValue = 1000;
@@ -1124,6 +1103,26 @@ namespace TrettioEtt
                 }
             }
             return worstCard;
+        }
+        private Suit BästaFärgen()
+        {
+            int[] färger = new int[4];
+
+            foreach (Card card in Hand)
+            {
+                färger[(int)card.Suit]++;
+            }
+
+            int maxKort = färger.Max();
+
+            for (int i = 0; i < färger.Length; i++)
+            {
+                if (färger[i] == maxKort)
+                {
+                    return (Suit)färger[i];
+                }
+            }
+            return Suit.Hjärter;
         }
 
         public override Card KastaKort()
