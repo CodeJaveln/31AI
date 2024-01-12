@@ -8,6 +8,7 @@ using System.Xml;
 using System.Threading;
 using System.Xml.Linq;
 using System.Security.Principal;
+using System.Security.Cryptography;
 
 namespace TrettioEtt
 {
@@ -773,18 +774,18 @@ namespace TrettioEtt
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
 
-            float percentageBarrier = 50; //At what percentage chance of winning we should knock
+            double percentageBarrier = 60; //At what percentage chance of winning we should knock
             Updatera();
-            if (round == 1 || GenerateWinProbability() < percentageBarrier) // kan inte knacka på första rundan
+            if (GenerateWinProbability() < percentageBarrier) // kan inte knacka på första rundan
             {
                 return false;
             }
-            else if ()
+            else
             {
-
+                return true;
             }
         }
-        public float GenerateWinProbability() // Returns the percentage chance of the AI having a winning hand
+        public double GenerateWinProbability() // Returns the percentage chance of the AI having a winning hand
         {
             int?[] IDs = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
 
@@ -824,11 +825,11 @@ namespace TrettioEtt
             foreach (Suit suit in possibleCards.Keys)
             {
 
-                foreach (int id in possibleCards[suit])
+                foreach (int? id in possibleCards[suit])
                 {
                     if (id != null)
                     {
-                        possibleCardList.Add(new Card(id, suit));
+                        possibleCardList.Add(new Card(id ?? 0, suit));
                     }
 
                 }
@@ -836,6 +837,7 @@ namespace TrettioEtt
             }
 
             int i = 0;
+            Random rng = new Random();
             bool isRunning = true;
             int totalHands = 0;
             int winningHands = 0;
@@ -853,7 +855,7 @@ namespace TrettioEtt
                             index = index % possibleCardList.Count;
                             o -= 1;
                         }
-                        possibleEnemyHand[pointerList[u]] = possibleCardList[index];
+                        possibleEnemyHand[pointerList[u]] = possibleCardList[rng.Next(0, possibleCardList.Count)];
                     }
                     catch
                     {
@@ -866,6 +868,7 @@ namespace TrettioEtt
                 {
                     int score = Game.HandScore(possibleEnemyHand, null);
                     totalHands++;
+                    if (totalHands > 10000) { isRunning = false; }
                     if (score > Game.HandScore(this.Hand, null))
                     {
                         winningHands++;
@@ -878,7 +881,7 @@ namespace TrettioEtt
 
 
 
-            return 1 - (winningHands / totalHands);
+            return (1 - (Convert.ToDouble(winningHands) / Convert.ToDouble(totalHands))) * 100;
 
 
         }
@@ -886,7 +889,15 @@ namespace TrettioEtt
         {
             if (OpponentsLatestCard != null)
             {
-                Cards.DiscardPile[0] = Game.GetTopCard();
+                if (Cards.DiscardPile.Count > 0)
+                {
+                    Cards.DiscardPile[0] = Game.GetTopCard();
+                }
+                else
+                {
+                    Cards.DiscardPile.Add(Game.GetTopCard());
+                }
+                
 
             }
         }
