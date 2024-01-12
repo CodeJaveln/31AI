@@ -1149,9 +1149,9 @@ namespace TrettioEtt
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
 
-            double percentageBarrier = 30; //At what percentage chance of winning we should knock
+            double percentageBarrier = 60; //At what percentage chance of winning we should knock
             Updatera();
-            if (GenerateWinProbability() * Math.Sqrt(round) > percentageBarrier) // kan inte knacka på första rundan
+            if (GenerateWinProbability() < percentageBarrier * Math.Sqrt(round))
             {
                 return true;
             }
