@@ -1,13 +1,13 @@
 ﻿namespace TrettioEtt
 {
-    class SimonsPlayAroundPlayer : Player
+    class SimonsMonster : Player
     {
         int[] ScoreOfWonGames = new int[10];
         int AverageWonScore = 18;
         //List<Card> UnavailableCards = new List<Card>();
-        public SimonsPlayAroundPlayer()
+        public SimonsMonster()
         {
-            Name = "SimonsAI1.1";
+            Name = "SimonsAI_1.1";
         }
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.

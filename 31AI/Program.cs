@@ -26,7 +26,7 @@ namespace TrettioEtt
             List<Player> players = new List<Player>();
             players.Add(new BasicPlayer());
             players.Add(new xx_ProPlayer_xx());
-            players.Add(new SimonsPlayAroundPlayer());
+            players.Add(new SimonsMonster());
             players.Add(new NeoAndSimonBot3());
 
             Console.WriteLine("Vilka två spelare skall mötas?");
