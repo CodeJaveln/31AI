@@ -13,9 +13,18 @@
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
+            Updatera();
+
+            if (TaUppKort(Game.GetTopCard()))
+            {
+                return false;
+            }
+            if (Game.Score(this) >= 21 - Math.Sqrt(round))
+            {
+                return true;
+            }
 
             double percentageBarrier = 20; //At what percentage chance of winning we should knock
-            Updatera();
             if (GenerateWinProbability() < percentageBarrier * Math.Sqrt(round))
             {
                 return true;
@@ -110,13 +119,7 @@
                 }
             }
 
-
-
-
-
             return (1 - (Convert.ToDouble(winningHands) / Convert.ToDouble(totalHands))) * 100;
-
-
         }
         public void Updatera() //Körs varje runda
         {

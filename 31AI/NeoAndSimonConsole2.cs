@@ -1,11 +1,23 @@
-﻿namespace TrettioEtt
+﻿using System.Diagnostics;
+using System.IO;
+
+namespace TrettioEtt
 {
     class NeoAndSimonConsole2 : Player
     {
-        List<Card> UnavailableCards = new List<Card>();
+        //List<Card> UnavailableCards = new List<Card>();
         public NeoAndSimonConsole2()
         {
-            Name = "NASConsole2";
+            Name = "SimonsAI1.0";
+            if (File.Exists("WinScore.txt"))
+            {
+                File.Delete("WinScore.txt");
+                File.Create("WinScore.txt");
+            }
+            else
+            {
+                File.Create("WinScore.txt");
+            }
         }
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
@@ -17,11 +29,11 @@
 
             //    }
             //}
-            if (TaUppKort(Game.GetTopCard()) && Game.GetTopCard().Suit == BästaFärgen())
+            if (TaUppKort(Game.GetTopCard()))
             {
                 return false;
             }
-            if (Game.Score(this) >= 21)
+            if (Game.Score(this) >= 21 + Math.Sqrt(round))
             {
                 return true;
             }
@@ -37,16 +49,17 @@
             {
                 return false;
             }
-            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Id && card.Value > 5)
+            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5)
             {
                 return true;
             }
-            if (card.Suit == BästaFärgen())
+            if (card.Suit == BestSuit)
             {
                 return true;
             }
             return false;
         }
+
         private Card SämstaKortet(params Card[] hand)
         {
             int worstValue = 1000;
@@ -86,26 +99,6 @@
             }
             return worstCard;
         }
-        private Suit BästaFärgen()
-        {
-            int[] färger = new int[4];
-
-            foreach (Card card in Hand)
-            {
-                färger[(int)card.Suit]++;
-            }
-
-            int maxKort = färger.Max();
-
-            for (int i = 0; i < färger.Length; i++)
-            {
-                if (färger[i] == maxKort)
-                {
-                    return (Suit)färger[i];
-                }
-            }
-            return Suit.Hjärter;
-        }
 
         public override Card KastaKort()
         {
@@ -119,7 +112,7 @@
 
         public override void SpelSlut(bool wonTheGame)
         {
-            UnavailableCards = new List<Card>();
+            //UnavailableCards = new List<Card>();
             if (wonTheGame)
             {
                 Wongames++;
