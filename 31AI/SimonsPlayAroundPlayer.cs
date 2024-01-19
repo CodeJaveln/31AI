@@ -1,23 +1,13 @@
-﻿using System.Diagnostics;
-using System.IO;
-
-namespace TrettioEtt
+﻿namespace TrettioEtt
 {
-    class NeoAndSimonConsole2 : Player
+    class SimonsPlayAroundPlayer : Player
     {
+        int[] ScoreOfWonGames = new int[10];
+        int AverageWonScore = 18;
         //List<Card> UnavailableCards = new List<Card>();
-        public NeoAndSimonConsole2()
+        public SimonsPlayAroundPlayer()
         {
-            Name = "SimonsAI1.0";
-            if (File.Exists("WinScore.txt"))
-            {
-                File.Delete("WinScore.txt");
-                File.Create("WinScore.txt");
-            }
-            else
-            {
-                File.Create("WinScore.txt");
-            }
+            Name = "SimonsAI1.1";
         }
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
@@ -33,7 +23,7 @@ namespace TrettioEtt
             {
                 return false;
             }
-            if (Game.Score(this) >= 21 + Math.Sqrt(round))
+            if (Game.Score(this) >= AverageWonScore)
             {
                 return true;
             }
@@ -80,7 +70,7 @@ namespace TrettioEtt
                     }
                     if (wrongAttack == false)
                     {
-                        worstValue = CardValue(hand[i]);
+                        worstValue = hand[i].Value;
                         worstCard = hand[i];
                     }
                     wrongAttack = false;
@@ -92,7 +82,7 @@ namespace TrettioEtt
                 {
                     if (hand[i].Value < worstValue)
                     {
-                        worstValue = CardValue(hand[i]);
+                        worstValue = hand[i].Value;
                         worstCard = hand[i];
                     }
                 }
@@ -105,17 +95,19 @@ namespace TrettioEtt
             return SämstaKortet(Hand[0], Hand[1], Hand[2], Hand[3]);
         }
 
-        private int CardValue(Card card)
-        {
-            return card.Value;
-        }
-
         public override void SpelSlut(bool wonTheGame)
         {
-            //UnavailableCards = new List<Card>();
             if (wonTheGame)
             {
                 Wongames++;
+                if (Wongames <= ScoreOfWonGames.Length)
+                {
+                    ScoreOfWonGames[Wongames - 1] = Game.Score(this);
+                    if (Wongames == ScoreOfWonGames.Length)
+                    {
+                        AverageWonScore = (int)ScoreOfWonGames.Average();
+                    }
+                }
             }
         }
     }
