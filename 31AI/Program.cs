@@ -9,6 +9,7 @@ using System.Threading;
 using System.Xml.Linq;
 using System.Security.Principal;
 using System.Security.Cryptography;
+using _31AI;
 
 namespace TrettioEtt
 {
@@ -28,6 +29,7 @@ namespace TrettioEtt
             players.Add(new xx_ProPlayer_xx());
             players.Add(new SimonsMonster());
             players.Add(new NeoAndSimonBot3());
+            players.Add(new Gulagen());
 
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
