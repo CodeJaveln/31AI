@@ -28,7 +28,9 @@ namespace TrettioEtt
             players.Add(new BasicPlayer());
             players.Add(new xx_ProPlayer_xx());
             players.Add(new SimonsMonster());
+            players.Add(new SimonsMonster());
             players.Add(new NeoAndSimonBot3());
+            players.Add(new RandomAI());
             players.Add(new Gulagen());
 
             Console.WriteLine("Vilka två spelare skall mötas?");
@@ -143,7 +145,6 @@ namespace TrettioEtt
             Console.Write(knackAvg2);
             Console.SetCursorPosition(45 + player2.Name.Length / 2, 14);
             Console.Write(player2.TrettiettWins);
-            Console.ReadLine();
             Console.ReadLine();
         }
     }
