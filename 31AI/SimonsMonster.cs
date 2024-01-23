@@ -108,7 +108,7 @@
                 Wongames++;
             }
 
-            if (CurrentGame % 1000 == 0)
+            if (CurrentGame % 100 == 0)
             {
                 TestScoreAverage = true;
                 WonGamesDuringCalculating = 0;
