@@ -1,9 +1,11 @@
-﻿namespace TrettioEtt
+﻿using System.Diagnostics;
+
+namespace TrettioEtt
 {
     class SimonsMonster : Player
     {
         int[] ScoreOfWonGames = new int[10];
-        int AverageWonScore = 18;
+        int AverageWinScore = 23;
         int CurrentGame = 0;
         int WonGamesDuringCalculating = 0;
         bool TestScoreAverage;
@@ -26,7 +28,7 @@
             {
                 return false;
             }
-            if (Game.Score(this) >= AverageWonScore)
+            if (Game.Score(this) >= AverageWinScore)
             {
                 return true;
             }
@@ -100,7 +102,6 @@
 
         public override void SpelSlut(bool wonTheGame)
         {
-            // If game % 1000 = 0 then recount average!!!! fix this
             CurrentGame++;
 
             if (wonTheGame)
@@ -122,7 +123,8 @@
                     ScoreOfWonGames[WonGamesDuringCalculating - 1] = Game.Score(this);
                     if (WonGamesDuringCalculating == ScoreOfWonGames.Length)
                     {
-                        AverageWonScore = (int)ScoreOfWonGames.Average();
+                        AverageWinScore = (int)ScoreOfWonGames.Average();
+                        Debug.WriteLine("AverageWinScore: " + AverageWinScore);
                     }
                 }
             }
