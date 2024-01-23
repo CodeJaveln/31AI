@@ -4,10 +4,13 @@
     {
         int[] ScoreOfWonGames = new int[10];
         int AverageWonScore = 18;
+        int CurrentGame = 0;
+        int WonGamesDuringCalculating = 0;
+        bool TestScoreAverage;
         //List<Card> UnavailableCards = new List<Card>();
         public SimonsMonster()
         {
-            Name = "SimonsAI_1.1";
+            Name = "SimonsAI_1.2";
         }
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
@@ -97,13 +100,27 @@
 
         public override void SpelSlut(bool wonTheGame)
         {
+            // If game % 1000 = 0 then recount average!!!! fix this
+            CurrentGame++;
+
             if (wonTheGame)
             {
                 Wongames++;
-                if (Wongames <= ScoreOfWonGames.Length)
+            }
+
+            if (CurrentGame % 1000 == 0)
+            {
+                TestScoreAverage = true;
+                WonGamesDuringCalculating = 0;
+                ScoreOfWonGames = new int[10];
+            }
+            if (TestScoreAverage && wonTheGame)
+            {
+                WonGamesDuringCalculating++;
+                if (WonGamesDuringCalculating <= ScoreOfWonGames.Length)
                 {
-                    ScoreOfWonGames[Wongames - 1] = Game.Score(this);
-                    if (Wongames == ScoreOfWonGames.Length)
+                    ScoreOfWonGames[WonGamesDuringCalculating - 1] = Game.Score(this);
+                    if (WonGamesDuringCalculating == ScoreOfWonGames.Length)
                     {
                         AverageWonScore = (int)ScoreOfWonGames.Average();
                     }
