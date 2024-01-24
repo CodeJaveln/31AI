@@ -2,21 +2,22 @@
 
 namespace TrettioEtt
 {
-    class SimonsMonster : Player
+    class SimonsAI : Player
     {
         int[] ScoreOfWonGames = new int[10];
         int AverageWinScore = 23;
         int CurrentGame = 0;
         int WonGamesDuringCalculating = 0;
-        bool TestScoreAverage;
+        bool TestScoreAverage = false;
         //List<Card> UnavailableCards = new List<Card>();
-        public SimonsMonster()
+        public SimonsAI()
         {
-            Name = "SimonsAI_1.2";
+            Name = "SimonsAI_0.6";
         }
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
+            //Ta average av motståndarens knackningar
             //for (int i = 0; i < Hand.Count; i++)
             //{
             //    if (!UnavailableCards.Find(Hand[i]))
@@ -24,13 +25,13 @@ namespace TrettioEtt
 
             //    }
             //}
-            if (TaUppKort(Game.GetTopCard()))
-            {
-                return false;
-            }
             if (Game.Score(this) >= AverageWinScore)
             {
                 return true;
+            }
+            else if (TaUppKort(Game.GetTopCard()))
+            {
+                return false;
             }
             return false;
         }
@@ -38,7 +39,6 @@ namespace TrettioEtt
         public override bool TaUppKort(Card card)
         {
             // Om tänker ta upp kort, kolla om det är större chans att dra ett kort istället
-
 
             if (card == SämstaKortet(card, Hand[0], Hand[1], Hand[2])) // VIKTIGT ändra inte om du vet vad du gör
             {
@@ -111,6 +111,8 @@ namespace TrettioEtt
 
             if (CurrentGame % 100 == 0)
             {
+                //////////////////////////// Kolla om den håller på att evaluera
+                // kolla om den borde sänka average
                 TestScoreAverage = true;
                 WonGamesDuringCalculating = 0;
                 ScoreOfWonGames = new int[10];
@@ -118,14 +120,12 @@ namespace TrettioEtt
             if (TestScoreAverage && wonTheGame)
             {
                 WonGamesDuringCalculating++;
-                if (WonGamesDuringCalculating <= ScoreOfWonGames.Length)
+                ScoreOfWonGames[WonGamesDuringCalculating - 1] = Game.Score(this);
+                if (WonGamesDuringCalculating == ScoreOfWonGames.Length)
                 {
-                    ScoreOfWonGames[WonGamesDuringCalculating - 1] = Game.Score(this);
-                    if (WonGamesDuringCalculating == ScoreOfWonGames.Length)
-                    {
-                        AverageWinScore = (int)ScoreOfWonGames.Average();
-                        Debug.WriteLine("AverageWinScore: " + AverageWinScore);
-                    }
+                    AverageWinScore = (int)ScoreOfWonGames.Average();
+                    Debug.WriteLine("AverageWinScore: " + AverageWinScore);
+                    TestScoreAverage = false; 
                 }
             }
         }
