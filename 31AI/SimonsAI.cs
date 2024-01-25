@@ -5,18 +5,27 @@ namespace TrettioEtt
     class SimonsAI : Player
     {
         int[] ScoreOfWonGames = new int[10];
-        int AverageWinScore = 23;
+        int AverageWinScore = 18;
         int CurrentGame = 0;
         int WonGamesDuringCalculating = 0;
         bool TestScoreAverage = false;
+        Random random;
         //List<Card> UnavailableCards = new List<Card>();
         public SimonsAI()
         {
-            Name = "SimonsAI_0.6";
+            Name = "SimonsAI_0.7";
+            //Console.BackgroundColor = ConsoleColor.Blue;
+            random = new Random();
         }
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
+            //if (CurrentGame == 0)
+            //{
+            //    Game.Player1 = this;
+            //    Game.Player2 = this;
+            //}
+            
             //Ta average av motståndarens knackningar
             //for (int i = 0; i < Hand.Count; i++)
             //{
@@ -109,13 +118,20 @@ namespace TrettioEtt
                 Wongames++;
             }
 
+            if (CurrentGame / 2 > Wongames)
+            {
+                Game.Player1 = this;
+                Game.Player2 = this;
+            }
+
             if (CurrentGame % 100 == 0)
             {
                 //////////////////////////// Kolla om den håller på att evaluera
                 // kolla om den borde sänka average
                 TestScoreAverage = true;
                 WonGamesDuringCalculating = 0;
-                ScoreOfWonGames = new int[10];
+                AverageWinScore += random.Next(-3, 3);
+                ScoreOfWonGames = new int[15];
             }
             if (TestScoreAverage && wonTheGame)
             {
@@ -124,7 +140,7 @@ namespace TrettioEtt
                 if (WonGamesDuringCalculating == ScoreOfWonGames.Length)
                 {
                     AverageWinScore = (int)ScoreOfWonGames.Average();
-                    Debug.WriteLine("AverageWinScore: " + AverageWinScore);
+                    //Debug.WriteLine("AverageWinScore: " + AverageWinScore);
                     TestScoreAverage = false; 
                 }
             }
