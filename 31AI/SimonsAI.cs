@@ -4,7 +4,7 @@ namespace TrettioEtt
 {
     class SimonsAI : Player
     {
-        int[] ScoreOfWonGames = new int[10];
+        int[] ScoreOfWonGames = new int[15];
         int AverageWinScore = 18;
         int CurrentGame = 0;
         int WonGamesDuringCalculating = 0;
@@ -118,19 +118,22 @@ namespace TrettioEtt
                 Wongames++;
             }
 
-            if (CurrentGame / 2 > Wongames)
-            {
-                Game.Player1 = this;
-                Game.Player2 = this;
-            }
+            //if (CurrentGame / 2 > Wongames)
+            //{
+            //    Game.Player1 = this;
+            //    Game.Player2 = this;
+            //}
 
             if (CurrentGame % 100 == 0)
             {
                 //////////////////////////// Kolla om den håller på att evaluera
                 // kolla om den borde sänka average
+                if (AverageWinScore > 26)
+                {
+                    AverageWinScore -= (int)Math.Sqrt(AverageWinScore);
+                }
                 TestScoreAverage = true;
                 WonGamesDuringCalculating = 0;
-                AverageWinScore += random.Next(-3, 3);
                 ScoreOfWonGames = new int[15];
             }
             if (TestScoreAverage && wonTheGame)
@@ -140,7 +143,7 @@ namespace TrettioEtt
                 if (WonGamesDuringCalculating == ScoreOfWonGames.Length)
                 {
                     AverageWinScore = (int)ScoreOfWonGames.Average();
-                    //Debug.WriteLine("AverageWinScore: " + AverageWinScore);
+                    Debug.WriteLine("AverageWinScore: " + AverageWinScore);
                     TestScoreAverage = false; 
                 }
             }
