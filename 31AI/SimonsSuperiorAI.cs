@@ -2,20 +2,18 @@
 
 namespace TrettioEtt
 {
-    class SimonsAI : Player
+    class SimonsSuperiorAI : Player
     {
         int[] ScoreOfWonGames = new int[15];
         int AverageWinScore = 18;
         int CurrentGame = 0;
         int WonGamesDuringCalculating = 0;
         bool TestScoreAverage = false;
-        Random random;
         //List<Card> UnavailableCards = new List<Card>();
-        public SimonsAI()
+        public SimonsSuperiorAI()
         {
-            Name = "SimonsAI_0.7";
+            Name = "SimonsReplika_0.8";
             //Console.BackgroundColor = ConsoleColor.Blue;
-            random = new Random();
         }
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
@@ -54,10 +52,6 @@ namespace TrettioEtt
                 return false;
             }
             if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5)
-            {
-                return true;
-            }
-            if (card.Suit == BestSuit)
             {
                 return true;
             }
@@ -112,7 +106,6 @@ namespace TrettioEtt
         public override void SpelSlut(bool wonTheGame)
         {
             CurrentGame++;
-
             if (wonTheGame)
             {
                 Wongames++;
@@ -127,10 +120,9 @@ namespace TrettioEtt
             if (CurrentGame % 100 == 0)
             {
                 //////////////////////////// Kolla om den håller på att evaluera
-                // kolla om den borde sänka average
-                if (AverageWinScore > 26)
+                if (AverageWinScore > 28)
                 {
-                    AverageWinScore -= (int)Math.Sqrt(AverageWinScore);
+                    AverageWinScore -= (int)Math.Sqrt(AverageWinScore) / 2;
                 }
                 TestScoreAverage = true;
                 WonGamesDuringCalculating = 0;

@@ -15,15 +15,6 @@
         {
             Updatera();
 
-            if (TaUppKort(Game.GetTopCard()))
-            {
-                return false;
-            }
-            if (Game.Score(this) >= 21 - Math.Sqrt(round))
-            {
-                return true;
-            }
-
             double percentageBarrier = 20; //At what percentage chance of winning we should knock
             if (GenerateWinProbability() < percentageBarrier * Math.Sqrt(round))
             {

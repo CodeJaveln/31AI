@@ -27,8 +27,8 @@ namespace TrettioEtt
             List<Player> players = new List<Player>();
             players.Add(new BasicPlayer());
             players.Add(new xx_ProPlayer_xx());
-            players.Add(new SimonsAI());
-            players.Add(new SimonsAI());
+            players.Add(new SimonsSuperiorAI());
+            players.Add(new SimonsSuperiorAI());
             players.Add(new NeoAndSimonBot3());
             players.Add(new RandomAI());
             players.Add(new Gulagen());
