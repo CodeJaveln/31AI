@@ -9,9 +9,13 @@ using System.Threading;
 using System.Xml.Linq;
 using System.Security.Principal;
 using System.Security.Cryptography;
+using System.Data;
+using System.Runtime.InteropServices;
+using Microsoft.Win32;
 
 namespace TrettioEtt
 {
+    #region ImportantCode
     public enum Suit { Hjärter, Ruter, Spader, Klöver };
 
     class Program
@@ -25,6 +29,8 @@ namespace TrettioEtt
             List<Player> players = new List<Player>();
             players.Add(new BasicPlayer());
             players.Add(new xx_ProPlayer_xx());
+            players.Add(new NeoAndSimonConsole2());
+            players.Add(new NeoAndSimonBot3());
 
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
@@ -676,9 +682,8 @@ namespace TrettioEtt
         }
     }
 
-
-
-
+    #endregion
+    #region player Class
     abstract class Player
     {
         public string Name;
@@ -756,210 +761,8 @@ namespace TrettioEtt
 
         }
     }
-
-
-
-    #region FirstAI
-    class xx_ProPlayer_xx : Player //Denna spelare nästan som BasicPlayer. Ändra gärna i denna för att göra tester.
-    {
-        public CardData Cards;
-
-
-        public xx_ProPlayer_xx()
-        {
-            Cards = new CardData(ref this.Hand);
-            Name = "xx_pro31player_xx";
-        }
-
-        public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
-        {
-
-            double percentageBarrier = 60; //At what percentage chance of winning we should knock
-            Updatera();
-            if (GenerateWinProbability() < percentageBarrier) // kan inte knacka på första rundan
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-        public double GenerateWinProbability() // Returns the percentage chance of the AI having a winning hand
-        {
-            int?[] IDs = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
-
-            Dictionary<Suit, int?[]> possibleCards = new Dictionary<Suit, int?[]>() { { Suit.Hjärter, IDs }, { Suit.Spader, IDs }, { Suit.Ruter, IDs }, { Suit.Klöver, IDs } };
-
-
-            foreach (Card card in Cards.DiscardPile)
-            {
-                possibleCards[card.Suit][card.Id - 1] = null; // means it is not possible
-            }
-            foreach (Card card in Hand)
-            {
-                possibleCards[card.Suit][card.Id - 1] = null;
-            }
-            foreach (Card? card in Cards.EnemyHand)
-            {
-                if (card != null)
-                {
-                    possibleCards[card.Suit][card.Id - 1] = null;
-                }
-            }
-
-
-
-            List<Card?> possibleEnemyHand = Cards.EnemyHand;
-            List<int> pointerList = new List<int>();
-
-            for (int a = 0; a < possibleEnemyHand.Count; a++)
-            {
-                if (possibleEnemyHand[a] != null)
-                {
-                    pointerList.Add(a);
-                }
-            }
-            List<Card> possibleCardList = new List<Card>();
-
-            foreach (Suit suit in possibleCards.Keys)
-            {
-
-                foreach (int? id in possibleCards[suit])
-                {
-                    if (id != null)
-                    {
-                        possibleCardList.Add(new Card(id ?? 0, suit));
-                    }
-
-                }
-
-            }
-
-            int i = 0;
-            Random rng = new Random();
-            bool isRunning = true;
-            int totalHands = 0;
-            int winningHands = 0;
-
-            while (isRunning)
-            {
-                for (int u = 0; u < pointerList.Count; u++)
-                {
-                    try
-                    {
-                        int index = i % possibleCardList.Count;
-                        int o = u;
-                        while (o > 0)
-                        {
-                            index = index % possibleCardList.Count;
-                            o -= 1;
-                        }
-                        possibleEnemyHand[pointerList[u]] = possibleCardList[rng.Next(0, possibleCardList.Count)];
-                    }
-                    catch
-                    {
-                        isRunning = false; break;
-                    }
-
-
-                }
-                if (isRunning)
-                {
-                    int score = Game.HandScore(possibleEnemyHand, null);
-                    totalHands++;
-                    if (totalHands > 10000) { isRunning = false; }
-                    if (score > Game.HandScore(this.Hand, null))
-                    {
-                        winningHands++;
-                    }
-                }
-
-            }
-
-
-
-
-
-            return (1 - (Convert.ToDouble(winningHands) / Convert.ToDouble(totalHands))) * 100;
-
-
-        }
-        public void Updatera() //Körs varje runda
-        {
-            if (OpponentsLatestCard != null)
-            {
-                if (Cards.DiscardPile.Count > 0)
-                {
-                    Cards.DiscardPile[0] = Game.GetTopCard();
-                }
-                else
-                {
-                    Cards.DiscardPile.Add(Game.GetTopCard());
-                }
-                
-
-            }
-        }
-        public override bool TaUppKort(Card card)
-        {
-            if (card.Value == 11 || (card.Value == 10 && card.Suit == BestSuit))
-            {
-                return true;
-            }
-            return false;
-
-        }
-
-        public override Card KastaKort()
-        {
-            int worstValue = 1000;
-            Card worstCard = null;
-            for (int i = 0; i < Hand.Count; i++)
-            {
-                if (CardValue(Hand[i]) < worstValue)
-                {
-                    worstValue = CardValue(Hand[i]);
-                    worstCard = Hand[i];
-                }
-            }
-            return worstCard;
-        }
-
-        private int CardValue(Card card)
-        {
-            if (card.Suit == Suit.Hjärter)
-            {
-                return card.Value + 100;
-            }
-
-            else
-            {
-                return card.Value;
-            }
-        }
-
-
-        public override void SpelSlut(bool wonTheGame)
-        {
-            if (wonTheGame)
-            {
-                Wongames++;
-            }
-
-        }
-    }
-    struct CardData
-    {
-        public List<Card> DiscardPile = new List<Card>();
-        public List<Card> Hand = new List<Card>();
-        public List<Card> EnemyHand = new List<Card>() { null, null, null }; // null står för "Vet inte"
-        public int DeckAmount;
-        public CardData(ref List<Card> hand)
-        {
-            Hand = hand;
-            DeckAmount = 46 - DiscardPile.Count;
-        }
-    }
-    #endregion
 }
+
+    #endregion
+
+   
