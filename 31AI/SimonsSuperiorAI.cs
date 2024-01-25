@@ -51,7 +51,8 @@ namespace TrettioEtt
             {
                 return false;
             }
-            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5)
+            // Testa card.Value > 4 (card.Value > 5 är bäst än så länge)
+            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 4 && card.Suit == BestSuit)
             {
                 return true;
             }
