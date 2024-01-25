@@ -52,7 +52,7 @@ namespace TrettioEtt
                 return false;
             }
             // Testa card.Value > 4 (card.Value > 5 är bäst än så länge)
-            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 4 && card.Suit == BestSuit)
+            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5 && card.Suit == BestSuit)
             {
                 return true;
             }
@@ -121,10 +121,10 @@ namespace TrettioEtt
             if (CurrentGame % 100 == 0)
             {
                 //////////////////////////// Kolla om den håller på att evaluera
-                if (AverageWinScore > 28)
-                {
-                    AverageWinScore -= (int)Math.Sqrt(AverageWinScore) / 2;
-                }
+                //if (AverageWinScore > 28 && CurrentGame < 1000)
+                //{
+                //    AverageWinScore -= (int)Math.Sqrt(AverageWinScore);
+                //}
                 TestScoreAverage = true;
                 WonGamesDuringCalculating = 0;
                 ScoreOfWonGames = new int[15];
