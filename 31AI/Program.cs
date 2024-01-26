@@ -34,6 +34,7 @@ namespace TrettioEtt
             players.Add(new Gulagen());
             players.Add(new WorstBot());
             players.Add(new NeoAndSimonConsole2());
+            players.Add(new NeoAndSimonConsole2());
 
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)

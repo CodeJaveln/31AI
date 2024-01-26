@@ -20,24 +20,7 @@ namespace _31AI
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
-
             Update(round);
-            //for (int i = 0; i < Hand.Count; i++)
-            //{
-            //    if (!UnavailableCards.Find(Hand[i]))
-            //    {
-
-            //    }
-            //}
-            //if (TaUppKort(Game.GetTopCard()))
-            //{
-            //    return false;
-            //}
-            //if (Game.Score(this) >= 21 + Math.Sqrt(round))
-            //{
-            //    return true;
-            //}
-            //return false;
 
             double percentageThreshold = 60;
 
@@ -45,12 +28,7 @@ namespace _31AI
             {
                 return true;
             }
-            else
-            {
-                return false;
-            }
-
-
+            return false;
         }
 
 
@@ -147,15 +125,13 @@ namespace _31AI
         void Update(int round)
         {
 
-            if (round == 1 || round == 2)
+            if (round <= 2)
             {
                 Cards = new CardData(Hand);
 
             }
 
-
             Cards.Update(OpponentsLatestCard, Game.GetTopCard(), Hand);
-
         }
 
 
@@ -165,17 +141,15 @@ namespace _31AI
         public override bool TaUppKort(Card card)
         {
             // Om tänker ta upp kort, kolla om det är större chans att dra ett kort istället
-
-
             if (card == SämstaKortet(card, Hand[0], Hand[1], Hand[2])) // VIKTIGT ändra inte om du vet vad du gör
             {
                 return false;
             }
-            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5)
+            if (card.Value != SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5)
             {
                 return true;
             }
-            if (card.Suit == BestSuit)
+            if (card != SämstaKortet(card, Hand[0], Hand[1], Hand[2]) && card.Suit == BestSuit)
             {
                 return true;
             }
