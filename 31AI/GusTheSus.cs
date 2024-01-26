@@ -1,83 +1,40 @@
-﻿using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Security.Cryptography;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TrettioEtt;
 
-namespace TrettioEtt
+namespace _31AI
 {
-    class NeoAndSimonConsole2 : Player
+    class GusTheSus : Player
     {
         //List<Card> UnavailableCards = new List<Card>();
         CardData Cards;
-        List<RAD> RADs = new List<RAD>();
-        bool Knackade = false;
-        int KnackRound;
-        public NeoAndSimonConsole2()
+        public GusTheSus()
         {
-            Name = "Gus the Sus MK2";
-            
+            Name = "Gus the Sus";
         }
 
-        
+
 
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
-
             Update(round);
-            //for (int i = 0; i < Hand.Count; i++)
-            //{
-            //    if (!UnavailableCards.Find(Hand[i]))
-            //    {
 
-            //    }
-            //}
-            //if (TaUppKort(Game.GetTopCard()))
-            //{
-            //    return false;
-            //}
-            //if (Game.Score(this) >= 21 + Math.Sqrt(round))
-            //{
-            //    return true;
-            //}
-            //return false;
-            
-            RAD rad = SearchRADs(round);
-            
+            double percentageThreshold = 60;
 
-
-            double percentageThreshold;
-            if (rad != null)
+            if (GetWinProbability(1000) > percentageThreshold)
             {
-                percentageThreshold = rad.Threshold;
-            }
-            else
-            {
-                percentageThreshold = 50;
-            }
-
-            
-
-            if (GetWinProbability(800) > 76)
-            {
-                Knackade = true;
-                KnackRound = round;
                 return true;
-
-
             }
-            else
-            {
-                return false;
-            }
-
+            return false;
         }
-
-        
 
 
         public double GetWinProbability(int sampleSize)
         {
-            Dictionary<Suit, int> totalValues = new Dictionary<Suit, int>() { {Suit.Ruter, 0}, {Suit.Spader, 0}, {Suit.Klöver, 0}, {Suit.Hjärter, 0} };
+            Dictionary<Suit, int> totalValues = new Dictionary<Suit, int>() { { Suit.Ruter, 0 }, { Suit.Spader, 0 }, { Suit.Klöver, 0 }, { Suit.Hjärter, 0 } };
             Dictionary<Suit, int> suitAmounts = totalValues.ToDictionary();
 
 
@@ -91,17 +48,17 @@ namespace TrettioEtt
             }
 
             Dictionary<Suit, double> averageValues = new Dictionary<Suit, double>();
-            
+
 
             foreach (Suit suit in totalValues.Keys)
             {
                 averageValues[suit] = Convert.ToDouble(totalValues[suit]) / Convert.ToDouble(suitAmounts[suit]);
-                
+
             }
 
             List<int> PointerList = new List<int>(); //points to all indices where the enemy card is unknown
 
-            for (int i = 0; i < Cards.EnemyHand.Count; i++) 
+            for (int i = 0; i < Cards.EnemyHand.Count; i++)
             {
                 if (Cards.EnemyHand[i] == null)
                 {
@@ -110,9 +67,9 @@ namespace TrettioEtt
             }
 
             Random rng = new Random();
-            
 
-            
+
+
             Suit[] suitArray = new Suit[4] { Suit.Klöver, Suit.Ruter, Suit.Spader, Suit.Hjärter };
             double playerScore = Game.HandScore(Cards.Hand, null);
             int wins = 0;
@@ -138,7 +95,7 @@ namespace TrettioEtt
                 for (int a = 0; a < Cards.EnemyHand.Count; a++)
                 {
                     Card tempCard = Cards.EnemyHand[a];
-                    if (tempCard != null) 
+                    if (tempCard != null)
                     {
                         //Debug.WriteLine(tempCard.Value, tempCard.Suit.ToString());
                         possibleEnemyHand[tempCard.Suit] += tempCard.Value;
@@ -147,17 +104,17 @@ namespace TrettioEtt
 
 
                 double HighestValue = 0;
-                
-                foreach(Suit suit in possibleEnemyHand.Keys) // get the highest value in possibleEnemyHand
+
+                foreach (Suit suit in possibleEnemyHand.Keys) // get the highest value in possibleEnemyHand
                 {
                     if (possibleEnemyHand[suit] > HighestValue)
                     {
-                        
+
                         HighestValue = possibleEnemyHand[suit];
                     }
                 }
                 if (playerScore > HighestValue) { wins++; }
-                
+
             }
             double percentage = wins / sampleSize * 100;
             return percentage;
@@ -165,54 +122,34 @@ namespace TrettioEtt
         }
 
 
-
-
-
-
         void Update(int round)
         {
-            
-            if (round == 1 || round == 2)
+
+            if (round <= 2)
             {
                 Cards = new CardData(Hand);
-                
-            }
 
+            }
 
             Cards.Update(OpponentsLatestCard, Game.GetTopCard(), Hand);
-
         }
 
 
-
-        public RAD SearchRADs(int roundNum)
-        {
-            foreach(RAD rad in RADs)
-            {
-                if (rad.RoundNum == roundNum)
-                {
-                    return rad;
-                }
-            }
-            return null;
-        }
 
 
 
         public override bool TaUppKort(Card card)
         {
             // Om tänker ta upp kort, kolla om det är större chans att dra ett kort istället
-
-
             if (card == SämstaKortet(card, Hand[0], Hand[1], Hand[2])) // VIKTIGT ändra inte om du vet vad du gör
             {
                 return false;
             }
-            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5)
+            if (card.Value != SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5)
             {
                 return true;
             }
-            if (card.Suit == BestSuit)
+            if (card.Value != SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Suit == BestSuit)
             {
                 return true;
             }
@@ -272,30 +209,12 @@ namespace TrettioEtt
         public override void SpelSlut(bool wonTheGame)
         {
             //UnavailableCards = new List<Card>();
-            if (Knackade)
-            {
-                Knackade = false;
-                RAD rad = SearchRADs(KnackRound);
-                if (rad == null)
-                {
-                    rad = new RAD(KnackRound);
-                    rad.Update(wonTheGame);
-                    RADs.Add(rad);
-            
-                }
-                else
-                {
-                    rad.Update(wonTheGame);
-                }
-            }
-
-
             if (wonTheGame)
             {
                 Wongames++;
             }
         }
-        public class CardData
+        public struct CardData
         {
             public List<Card> DiscardPile = new List<Card>();
             public List<Card> Hand = new List<Card>();
@@ -309,7 +228,7 @@ namespace TrettioEtt
                 Unkown
             }
             Dictionary<CardCollection, List<Card>> CCDict;
-            
+
             public CardData(List<Card> hand)
             {
                 List<Suit> allSuits = new List<Suit>() { Suit.Hjärter, Suit.Spader, Suit.Ruter, Suit.Klöver };
@@ -329,18 +248,18 @@ namespace TrettioEtt
                     RemoveCard(card, CardCollection.Unkown);
                 }
 
-                
 
 
-                
-                
+
+
+
             }
-            
+
             public void Update(Card? opponentsLatestCard, Card? topCard, List<Card> hand)
             {
                 this.Hand = hand;
 
-                if(opponentsLatestCard != null) //om de tar från slänghög
+                if (opponentsLatestCard != null) //om de tar från slänghög
                 {
                     RemoveCard(topCard, CardCollection.Enemy);
                     AddCard(topCard, CardCollection.Discard);
@@ -354,7 +273,7 @@ namespace TrettioEtt
                     AddCard(topCard, CardCollection.Discard);
                 }
 
-                
+
             }
             public void RemoveCard(Card card, CardCollection cardCollection)
             {
@@ -379,7 +298,7 @@ namespace TrettioEtt
 
                     }
                 }
-                
+
             }
             public void AddCard(Card card, CardCollection cardCollection)
             {
@@ -402,32 +321,9 @@ namespace TrettioEtt
                 }
             }
         }
-        public class RAD // RAD stands for round average data
-        {
-            public int RoundNum;
-            public double Threshold;
-            public double Change;
-            public RAD(int roundNum)
-            {
-                this.RoundNum = roundNum;
-                this.Threshold = 50;
-                this.Change = 25;
-            }
-            public void Update(bool won)
-            {
-                double localChange = this.Change;
-                if (!won)
-                {
-                    localChange *= -1;
-                }
 
-                this.Threshold += localChange;
-                this.Change /= 2.0;
-            }
-        }
 
-        
 
-        
+
     }
 }

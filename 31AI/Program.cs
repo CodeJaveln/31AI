@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Data;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
+using _31AI;
 
 namespace TrettioEtt
 {
@@ -31,6 +32,7 @@ namespace TrettioEtt
             players.Add(new xx_ProPlayer_xx());
             players.Add(new NeoAndSimonConsole2());
             players.Add(new NeoAndSimonBot3());
+            players.Add(new GusTheSus());
 
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
