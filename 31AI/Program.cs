@@ -9,6 +9,9 @@ using System.Threading;
 using System.Xml.Linq;
 using System.Security.Principal;
 using System.Security.Cryptography;
+using System.Data;
+using System.Runtime.InteropServices;
+using Microsoft.Win32;
 using _31AI;
 
 namespace TrettioEtt
@@ -686,7 +689,7 @@ namespace TrettioEtt
     }
 
     #endregion
-
+    #region player Class
     abstract class Player
     {
         public string Name;
@@ -765,3 +768,7 @@ namespace TrettioEtt
         }
     }
 }
+
+    #endregion
+
+   
