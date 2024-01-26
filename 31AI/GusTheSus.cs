@@ -149,7 +149,7 @@ namespace _31AI
             {
                 return true;
             }
-            if (card != SämstaKortet(card, Hand[0], Hand[1], Hand[2]) && card.Suit == BestSuit)
+            if (card.Value != SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Suit == BestSuit)
             {
                 return true;
             }
