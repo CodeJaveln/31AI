@@ -13,7 +13,7 @@ namespace _31AI
         CardData Cards;
         public NeoAndSimonConsole2()
         {
-            Name = "NASConsole";
+            Name = "Gus the Sus";
         }
 
 
@@ -133,10 +133,6 @@ namespace _31AI
 
             Cards.Update(OpponentsLatestCard, Game.GetTopCard(), Hand);
         }
-
-
-
-
 
         public override bool TaUppKort(Card card)
         {

@@ -23,7 +23,7 @@ namespace TrettioEtt
             //    Game.Player1 = this;
             //    Game.Player2 = this;
             //}
-            
+
             //Ta average av motståndarens knackningar
             //for (int i = 0; i < Hand.Count; i++)
             //{
@@ -112,11 +112,7 @@ namespace TrettioEtt
                 Wongames++;
             }
 
-            //if (CurrentGame / 2 > Wongames)
-            //{
-            //    Game.Player1 = this;
-            //    Game.Player2 = this;
-            //}
+
 
             if (CurrentGame % 100 == 0)
             {

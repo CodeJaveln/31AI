@@ -2,44 +2,33 @@
 using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace TrettioEtt
 {
-    class NeoAndSimonConsole2 : Player
+    class NeoOchSimonsBot : Player
     {
-        //List<Card> UnavailableCards = new List<Card>();
         CardData Cards;
         List<RAD> RADs = new List<RAD>();
         bool Knackade = false;
         int KnackRound;
-        public NeoAndSimonConsole2()
+        int CurrentGame = 0;
+        public NeoOchSimonsBot()
         {
-            Name = "Gus the Sus MK2";
+            Name = "NASKonsolen";
             
         }
 
-        
-
+        //Neo:
+        //Får RAD för round och sen tar dens threshold och sen jämför det med win probability
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
+            // (Simon här, la till det för att förstöra Isak's encoding med emoji's)
+            if (CurrentGame == 0)
+                Console.OutputEncoding = Encoding.Default;
 
             Update(round);
-            //for (int i = 0; i < Hand.Count; i++)
-            //{
-            //    if (!UnavailableCards.Find(Hand[i]))
-            //    {
 
-            //    }
-            //}
-            //if (TaUppKort(Game.GetTopCard()))
-            //{
-            //    return false;
-            //}
-            //if (Game.Score(this) >= 21 + Math.Sqrt(round))
-            //{
-            //    return true;
-            //}
-            //return false;
             
             RAD rad = SearchRADs(round);
             
@@ -57,7 +46,7 @@ namespace TrettioEtt
 
             
 
-            if (GetWinProbability(800) > 76)
+            if (GetWinProbability(800) > percentageThreshold)
             {
                 Knackade = true;
                 KnackRound = round;
@@ -71,10 +60,8 @@ namespace TrettioEtt
             }
 
         }
-
-        
-
-
+        //Neo:
+        //returnerar chansen att spelaren har en vinnande hand. 1-100%. Hittar average värdet av alla suits från kor en som vi inte vet
         public double GetWinProbability(int sampleSize)
         {
             Dictionary<Suit, int> totalValues = new Dictionary<Suit, int>() { {Suit.Ruter, 0}, {Suit.Spader, 0}, {Suit.Klöver, 0}, {Suit.Hjärter, 0} };
@@ -164,11 +151,9 @@ namespace TrettioEtt
 
         }
 
-
-
-
-
-
+        //Neo:
+        //Körs varje runda
+        //används för att uppdatera Cards
         void Update(int round)
         {
             
@@ -182,9 +167,8 @@ namespace TrettioEtt
             Cards.Update(OpponentsLatestCard, Game.GetTopCard(), Hand);
 
         }
-
-
-
+        //Neo:
+        //Letar efter den RAD som motsvarar roundnum i RADs listan
         public RAD SearchRADs(int roundNum)
         {
             foreach(RAD rad in RADs)
@@ -197,38 +181,42 @@ namespace TrettioEtt
             return null;
         }
 
-
-
+        // Kodskrivare Simon:
         public override bool TaUppKort(Card card)
         {
-            // Om tänker ta upp kort, kolla om det är större chans att dra ett kort istället
-
-
+            // Det här är så att den inte tar upp ett kort bara för att kasta det direkt efter.
             if (card == SämstaKortet(card, Hand[0], Hand[1], Hand[2])) // VIKTIGT ändra inte om du vet vad du gör
             {
                 return false;
             }
-            if (card.Value > SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5)
+
+            // Det här är om kortet inte är sämsta korten samt har ett högre värde än fem för annars verkar det som om då kan det bli större chans att få ett bättre kort om man drar.
+            if (card.Value != SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Value > 5)
             {
                 return true;
             }
-            if (card.Suit == BestSuit)
+            if (card.Value != SämstaKortet(card, Hand[0], Hand[1], Hand[2]).Value && card.Suit == BestSuit)
             {
                 return true;
             }
+
             return false;
         }
-
+        // Kodskrivare Simon:
         private Card SämstaKortet(params Card[] hand)
         {
+            // Deklarerar variablarna, är bara default values för koden.
             int worstValue = 1000;
             Card worstCard = null;
             bool wrongAttack = false;
 
+            // Går igenom varje kort på handen, hittar det med lägst värde och har det som sämsta kortet.
             for (int i = 0; i < hand.Length; i++)
             {
                 if (hand[i].Value < worstValue)
                 {
+                    // Går igenom igen för att kolla om kortets färg är vanlig så borde den inte kasta den, därmed "wrongAttack" boolean.
+                    // Jag kan inte göra den här koden bättre utan att försämra funktionaliteten.
                     for (int j = 0; j < hand.Length; j++)
                     {
                         if (j != i && hand[j].Suit == hand[i].Suit)
@@ -237,41 +225,50 @@ namespace TrettioEtt
                             break;
                         }
                     }
+                    // Så den tar kortet som är det sämsta kortet om den färgen inte är vanligast.
                     if (wrongAttack == false)
                     {
-                        worstValue = CardValue(hand[i]);
+                        worstValue = hand[i].Value;
                         worstCard = hand[i];
                     }
                     wrongAttack = false;
                 }
             }
+            // Det här är ifall alla färger är samma och inte har hittat ett "sämsta kort".
             if (worstCard == null)
             {
                 for (int i = 0; i < hand.Length; i++)
                 {
                     if (hand[i].Value < worstValue)
                     {
-                        worstValue = CardValue(hand[i]);
+                        worstValue = hand[i].Value;
                         worstCard = hand[i];
                     }
                 }
             }
+
             return worstCard;
         }
-
+        // Kodskrivare Simon:
         public override Card KastaKort()
         {
+            // Kasta sämsta kortet på handen
             return SämstaKortet(Hand[0], Hand[1], Hand[2], Hand[3]);
         }
 
-        private int CardValue(Card card)
-        {
-            return card.Value;
-        }
-
+        // När spelet tar slut
         public override void SpelSlut(bool wonTheGame)
         {
-            //UnavailableCards = new List<Card>();
+            CurrentGame++;
+
+            // Hålla reda på hur många spel man har vunnit.
+            if (wonTheGame)
+            {
+                Wongames++;
+            }
+                
+            //Neo
+            //Updaterar Rad information eller skapar en ny RAD om det inte finns någon för den rundan
             if (Knackade)
             {
                 Knackade = false;
@@ -288,20 +285,17 @@ namespace TrettioEtt
                     rad.Update(wonTheGame);
                 }
             }
-
-
-            if (wonTheGame)
-            {
-                Wongames++;
-            }
         }
+        
+        //Neo:
+        //Håller information om både kort som vi vet och som vi inte vet. I de flesta listor så står null för "vet inte vad det är för kort"
         public class CardData
         {
             public List<Card> DiscardPile = new List<Card>();
-            public List<Card> Hand = new List<Card>();
-            public List<Card> UnknownCards = new List<Card>();
-            public List<Card> AllPossibleCards = new List<Card>();
-            public List<Card> EnemyHand = new List<Card>() { null, null, null }; // null står för "Vet inte"
+            public List<Card> Hand = new List<Card>(); //Spelarens hand
+            public List<Card> UnknownCards = new List<Card>(); //alla kort där vi inte vet var den är 
+            public List<Card> AllPossibleCards = new List<Card>(); //Alla 52 kort i en kortlek
+            public List<Card> EnemyHand = new List<Card>() { null, null, null }; //om vi vet något kort som finns i Enemyhand så kommer det stå här
             public enum CardCollection
             {
                 Discard,
@@ -324,7 +318,7 @@ namespace TrettioEtt
 
                 CCDict = new Dictionary<CardCollection, List<Card?>>() { { CardCollection.Discard, DiscardPile }, { CardCollection.Enemy, EnemyHand }, { CardCollection.Unkown, UnknownCards } };
                 Hand = hand;
-                foreach (Card card in Hand)
+                foreach (Card card in Hand) //ta bort alla kort i hand från Unkown 
                 {
                     RemoveCard(card, CardCollection.Unkown);
                 }
@@ -335,7 +329,7 @@ namespace TrettioEtt
                 
                 
             }
-            
+            //uppdaterar 
             public void Update(Card? opponentsLatestCard, Card? topCard, List<Card> hand)
             {
                 this.Hand = hand;
@@ -402,17 +396,21 @@ namespace TrettioEtt
                 }
             }
         }
-        public class RAD // RAD stands for round average data
+        //Neo:
+        public class RAD // RAD stands for round average data. Det är typ en 
         {
-            public int RoundNum;
-            public double Threshold;
-            public double Change;
+            public int RoundNum; //vilken runda den trackar
+            public double Threshold; //vilken threshold GetWinProbability har för den rundan
+            public double Change; //hur mycket threshold ändras med varje gång den vinner eller förlorar
             public RAD(int roundNum)
             {
-                this.RoundNum = roundNum;
+                this.RoundNum = roundNum; 
                 this.Threshold = 50;
                 this.Change = 25;
             }
+
+            //Neo
+            //Halverar change och ändrar Threshold baserat på om den vann eller inte
             public void Update(bool won)
             {
                 double localChange = this.Change;
@@ -425,9 +423,5 @@ namespace TrettioEtt
                 this.Change /= 2.0;
             }
         }
-
-        
-
-        
     }
 }

@@ -31,13 +31,11 @@ namespace TrettioEtt
             players.Add(new BasicPlayer());
             players.Add(new xx_ProPlayer_xx());
             players.Add(new SimonsSuperiorAI());
-            players.Add(new SimonsSuperiorAI());
             players.Add(new NeoAndSimonBot3());
             players.Add(new RandomAI());
             players.Add(new Gulagen());
             players.Add(new WorstBot());
-            players.Add(new NeoAndSimonConsole2());
-            players.Add(new NeoAndSimonConsole2());
+            players.Add(new NeoOchSimonsBot());
 
             Console.WriteLine("Vilka två spelare skall mötas?");
             for (int i = 1; i <= players.Count; i++)
