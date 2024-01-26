@@ -13,7 +13,7 @@ namespace _31AI
         CardData Cards;
         public NeoAndSimonConsole2()
         {
-            Name = "Gus the Sus";
+            Name = "NASConsole";
         }
 
 
@@ -22,7 +22,7 @@ namespace _31AI
         {
             Update(round);
 
-            double percentageThreshold = 60;
+            double percentageThreshold = 80;
 
             if (GetWinProbability(1000) > percentageThreshold)
             {

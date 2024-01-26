@@ -45,8 +45,6 @@
                 }
             }
 
-
-
             List<Card?> possibleEnemyHand = Cards.EnemyHand;
             List<int> pointerList = new List<int>();
 
