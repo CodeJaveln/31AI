@@ -12,7 +12,6 @@ namespace TrettioEtt
         List<RAD> RADs = new List<RAD>();
         bool Knackade = false;
         int KnackRound;
-        int CurrentGame = 0;
         public NeoOchSimonsBot()
         {
             Name = "NASKonsolen";
@@ -23,10 +22,6 @@ namespace TrettioEtt
         //Får RAD för round och sen tar dens threshold och sen jämför det med win probability
         public override bool Knacka(int round) //Round ökas varje runda. T.ex är spelare 2's andra runda = 4.
         {
-            // (Simon här, la till det för att förstöra Isak's encoding med emoji's)
-            if (CurrentGame == 0)
-                Console.OutputEncoding = Encoding.Default;
-
             Update(round);
 
             
@@ -259,8 +254,6 @@ namespace TrettioEtt
         // När spelet tar slut
         public override void SpelSlut(bool wonTheGame)
         {
-            CurrentGame++;
-
             // Hålla reda på hur många spel man har vunnit.
             if (wonTheGame)
             {
